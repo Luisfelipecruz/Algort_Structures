@@ -26,14 +26,16 @@ class Estudiantes{
         void imprime_nodo();
         void setApuntador();
         void reco_recur();
+        void nuevo_inicial_desde_lista_vacia();
         bool revisar_codigo(int cod);
+        nodo* set_eliminar_codigo();
         nodo* buscar_codigo(int clave);
         nodo* setAnterior();
         nodo* agregar_anterior();
         nodo* agregar_nodo(int clave);
         nodo* cambiar_inicial();
         void eliminar();
-        void eliminar_inicial();
+        ~Estudiantes();
 };
 
 Estudiantes::Estudiantes(nodo *_anterior ,nodo *_nuevo,nodo *_apun){
@@ -75,6 +77,14 @@ void Estudiantes::crear_lista(){
     anterior = nuevo;
 }
 
+void Estudiantes::nuevo_inicial_desde_lista_vacia(){
+    nuevo = new nodo;
+    nuevo->sig = inicial;
+    nuevo = leer_nodo();
+    inicial = nuevo;
+    anterior = nuevo;
+}
+
 void Estudiantes::imprime_nodo(){
     cout << "El codigo es: "<<apun->codigo<<endl;
     cout << "El nombre es: "<<apun->nombre<<endl;
@@ -93,13 +103,13 @@ void Estudiantes::setApuntador(){
     apun = inicial;
 }
 
-void Estudiantes::eliminar(){
-    nodo *elimina = apun->sig;
-    apun->sig = elimina->sig;
-    delete elimina;
+nodo* Estudiantes::set_eliminar_codigo(){
+    anterior = inicial;
+    apun = buscar_codigo(codigo);
+    return apun;
 }
 
-void Estudiantes::eliminar_inicial(){
+void Estudiantes::eliminar(){
     nodo *elimina = apun;
     inicial = elimina->sig;
     apun = elimina->sig;
@@ -118,7 +128,6 @@ bool Estudiantes::revisar_codigo(int cod){
     }
     return respuesta;
 }
-
 
 nodo* Estudiantes::cambiar_inicial(){
     inicial = agregar_nodo(codigo);
@@ -166,6 +175,15 @@ nodo* Estudiantes::agregar_nodo(int clave){
         }
 }
 
+Estudiantes::~Estudiantes(){
+    nodo *apun = inicial;
+	while(apun != NULL){
+		inicial = apun->sig;
+		delete apun ;
+		apun = inicial ;
+	}
+}
+
 int main(){
         nodo *anterior, *nuevo, *apun;
         char resp;
@@ -185,9 +203,10 @@ int main(){
         do{
           printf("Que operacion desea usar:\n" );
           printf("1) Eliminar el primer nodo \n");
-          printf("2) Eliminar dodo de la lista (Codigo) \n");
+          printf("2) Eliminar nodo de la lista (Codigo) \n");
           printf("3) Agregar un nodo a la lista original \n");
-          printf("4) Eliminar dodo de la lista (Codigo) \n");
+          printf("4) Crear el inicial de una lista vacia \n");
+          printf("5) Eliminar toda la lista \n");
           printf("Inserte el numero de la accion que desea hacer:\n");
           printf("Presione el numero Cero (0) para salir\n");
           scanf("%d",&numero_menu);
@@ -195,18 +214,28 @@ int main(){
             case 1: {
               printf("ejecuto 1) Eliminar el primer nodo  \n\n");
               l1.setApuntador();
-              l1.eliminar_inicial();
+              l1.eliminar();
               l1.reco_recur();
               break;
             }case 2: {
-              printf("2) Eliminar dodo de la lista (Codigo) \n\n");
-              l1.setApuntador();
-              l1.eliminar_inicial();
-              l1.reco_recur();
+              printf("ejecuto 2) Eliminar nodo de la lista (Codigo) \n");
+              printf("Digite el codigo del nodo que desea eliminar\n");
+              scanf("%d",&codigo);
+              apun = l1.set_eliminar_codigo();
+              if(apun != NULL){
+                l1.eliminar();
+                if (apun->sig == NULL){
+                  printf("Elimino el unico nodo que quedaba, la lista quedo vacia\n");
+                }
+                l1.setApuntador();
+                l1.reco_recur();
+              }else{
+                printf("El nodo no ha sido encontrado \n");
+              }
               break;
             }case 3: {
               printf("ejecuto 3) Agregar un nodo a la lista original \n\n");
-              printf("Digite 0 si va agregar a la cabeza de la lista. \n");
+              printf("Digite 0 si va agregar a la cabeza de la lista, desplazando la existente \n");
               printf("Si no digite el codigo anterior de la posicion deseada \n");
               scanf("%d",&codigo);
 
@@ -226,7 +255,18 @@ int main(){
               l1.reco_recur();
               break;
             }case 4: {
-              printf("ejecuto el menu 4) \n\n");
+              printf("ejecuto  4) Crear el inicial de una lista vacia \n\n");
+              anterior = NULL;
+              apun = NULL;
+              l1.nuevo_inicial_desde_lista_vacia();
+              l1.setApuntador();
+              l1.reco_recur();
+              break;
+            }case 5: {
+              printf("ejecuto  5) Eliminar toda la lista \n\n");
+              l1.~Estudiantes();
+              l1.setApuntador();
+              l1.reco_recur();
               break;
             }default: {
               printf("La opcion no esta en el menu \n\n");
